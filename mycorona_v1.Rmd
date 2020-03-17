@@ -1,0 +1,57 @@
+---
+title: "MY Corona Analys9s"
+author: "David J Jackson"
+date: "3/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(coronavirus)
+library(tidyverse)
+library(DT)
+library(pracma)
+data(coronavirus)
+library(plotly)
+library(scales)
+```
+```{r,echo=FALSE}
+coronavirus %>% summary()
+coron <- coronavirus
+```
+
+```{r,echo=FALSE}
+# Get top confirmed cases by state
+
+coronavirus %>%
+ filter(type == "confirmed") %>%
+ group_by(Country.Region) %>%
+ summarise(total = sum(cases)) %>%
+ arrange(-total) %>%
+ head(20)
+```
+```{r, echo=FALSE}
+coron %>% ggplot() +geom_col(aes(x=date,y=cases,col=type)) +
+  facet_wrap(~Country.Region) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + scale_y_continuous() + labs(title="The Whole Shooting Match")
+
+```
+```{r, echo=FALSE}
+coron_country <- coron %>% filter(Country.Region !="Mainland China")
+coron_country$EMA <- movavg(coron_country$cases, 30,"e") 
+  ggplot(coron_country) +geom_col(aes(x=date,y=EMA,col=type)) +
+    facet_wrap(~Country.Region) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_continuous() + labs(title="World minus China")
+
+```
+```{r, echo=FALSE}
+coron_usa <- coron %>% filter(Country.Region =="US")
+ggplot(coron_usa) +geom_col(aes(x=date,y=cases,col=type)) +
+    facet_wrap(~Province.State) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_continuous() + labs(title="US Data by State")
+```
+
+
