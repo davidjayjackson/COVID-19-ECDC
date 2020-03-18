@@ -98,7 +98,8 @@ coron_usa %>% ggplot() +   geom_col(aes(x=Reported,y=Deaths)) +
 
 
 ```
-## Death Rate as a Percentage.
+
+## Death Rate as a Percentage(%) of Cases(>=200)
 
 ```{R}
 death_percent <- CDC %>% group_by(Countries) %>% summarise(
@@ -110,7 +111,37 @@ death_percent$PDeaths <- round(death_percent$PDeaths,digits = 1)
                         
 ```
 ```{r}
-death_percent %>% ggplot() + geom_col(aes(x=PDeaths,y=Countries)) +
+
+death_percent %>%
+  mutate(Countries = fct_reorder(Countries, PDeaths)) %>%
+  ggplot() + geom_col(aes(x=PDeaths,y=Countries)) +
   labs(title="Death Rate Percentage by Country",subtitle="With 200  or more reported cases",x="Death Rate Percentage")
 ```
+```{r}
+death_percent %>% datatable()
+```
+
+## Death Rate Percentage of Cases(>1000)
+
+```{r}
+death_1000 <- CDC %>% group_by(Countries) %>% summarise(
+                                TCases = sum(Cases),
+                                TDeaths = sum(Deaths),
+                                PDeaths =TDeaths/TCases *100,
+                                ) %>% filter(TCases >=1000)
+death_1000PDeaths <- round(death_percent$PDeaths,digits = 1)
+```
+
+```{r}
+death_1000 %>%
+  mutate(Countries = fct_reorder(Countries, TCases)) %>%
+  ggplot() + geom_col(aes(x=TCases,y=Countries)) +
+  labs(title="Total Reported Case by Country",subtitle="With 1000  or more reported cases",x="Number of Cases")
+
+## Countries
+```
+```{r}
+
+```
+
 
