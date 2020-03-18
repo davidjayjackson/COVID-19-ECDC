@@ -1,0 +1,63 @@
+---
+title: "CDC Corona Virus as of Mar. 17.2020"
+author: "David J Jackson"
+date: "3/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(DT)
+library(pracma)
+library(plotly)
+library(scales)
+```
+
+#### Import Data and Fix Date
+```{r,echo=FALSE}
+rm(list=ls())
+CDC <- readxl::read_xlsx("../db/COVID19.xlsx")
+CDC$DateRep <- as.Date(CDC$DateRep)
+CDC$DCount <- ifelse(CDC$Deaths ==0,"NO","YES")
+colnames(CDC) <- c("Reported","Day","Month","Year","Cases","Deaths","Countries","GeoId","DCount")
+```
+
+```{r,echo=FALSE}
+table(CDC$DCount)
+CDC %>% group_by(Countries) %>% summarise(Count = n()) %>% datatable()
+```
+```{r, echo=FALSE}
+CDC %>% ggplot() +geom_col(aes(x=Reported,y=Cases)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  scale_y_continuous() + labs(title="The Whole Shooting Match") +
+  facet_wrap(~Year)
+
+```
+```{r, echo=FALSE}
+coron_country <- CDC %>% filter(Countries !="China")
+  ggplot(coron_country) +geom_col(aes(x=Reported,y=Cases)) +
+    facet_wrap(~Year) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_continuous() + labs(title="World minus China")
+
+```
+```{r, echo=FALSE}
+coron_usa <- CDC %>% filter(GeoId =="US")
+ggplot(coron_usa) +geom_col(aes(x=Reported,y=Cases)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_continuous() + facet_wrap(~Year)
+  labs(title="US Reported Cases by Month as of Mar. 17, 2020" )
+```
+
+```{r}
+coron_usa %>% ggplot() +   geom_col(aes(x=Reported,y=Deaths)) +
+          facet_wrap(~Year) +
+          labs(title="US Deaths by Month as of Mar. 17,2020",x="Date Reported")
+
+```
+
+
+

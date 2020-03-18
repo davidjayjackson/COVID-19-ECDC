@@ -54,4 +54,9 @@ ggplot(coron_usa) +geom_col(aes(x=date,y=cases,col=type)) +
     scale_y_continuous() + labs(title="US Data by State")
 ```
 
+```{r}
+coron_usa %>% ggplot() + geom_col(aes(x=date,y=cases,col=type))
+```
+
+
 
