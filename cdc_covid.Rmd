@@ -6,24 +6,29 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-```{r}
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(DT)
 library(pracma)
 library(plotly)
 library(scales)
+library(prophet)
 ```
 
-#### Import Data and Fix Date
+
+### Import Data and Fix Date
+
 ```{r,echo=FALSE}
 rm(list=ls())
-CDC <- readxl::read_xlsx("../db/COVID19.xlsx")
-CDC$DateRep <- as.Date(CDC$DateRep)
+CDC <- read_csv("../db/COVID-2019.CSV")
+CDC$DateRep <- lubridate::mdy(CDC$DateRep)
+# CDC$DateRep <- as.Date(CDC$DateRep)
 CDC$DCount <- ifelse(CDC$Deaths ==0,"NO","YES")
 colnames(CDC) <- c("Reported","Day","Month","Year","Cases","Deaths","Countries","GeoId","DCount")
 ```
+
+
+### Reported Cases by Date
 
 ```{r,echo=FALSE}
 table(CDC$DCount)
@@ -41,23 +46,71 @@ coron_country <- CDC %>% filter(Countries !="China")
   ggplot(coron_country) +geom_col(aes(x=Reported,y=Cases)) +
     facet_wrap(~Year) + 
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-    scale_y_continuous() + labs(title="World minus China")
+    scale_y_continuous() + labs(title="World Wide Reported Cases  minus China")
 
 ```
+
+### Just China
+
+```{r, echo=FALSE}
+coron_china <- CDC %>% filter(Countries =="China")
+  ggplot(coron_china) +geom_col(aes(x=Reported,y=Cases)) +
+    facet_wrap(~Year) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_continuous() + labs(title="Just China")
+```
+
+
 ```{r, echo=FALSE}
 coron_usa <- CDC %>% filter(GeoId =="US")
 ggplot(coron_usa) +geom_col(aes(x=Reported,y=Cases)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-    scale_y_continuous() + facet_wrap(~Year)
-  labs(title="US Reported Cases by Month as of Mar. 17, 2020" )
+    scale_y_continuous() + facet_wrap(~Year) +
+  labs(title="US Reported Cases by Month as of Mar. 18, 2020",x="Date Reported")
 ```
 
-```{r}
+### Reported Deaths by Date
+
+```{r, echo=FALSE}
+CDC %>% ggplot() +geom_col(aes(x=Reported,y=Deaths)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  scale_y_continuous() + labs(title="Deaths: The Whole Shooting Match") +
+  facet_wrap(~Year)
+
+```
+```{r, echo=FALSE}
+coron_country <- CDC %>% filter(Countries !="China")
+  ggplot(coron_country) +geom_col(aes(x=Reported,y=Deaths)) +
+    facet_wrap(~Year) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_continuous() + labs(title=" Deaths: The World minus China")
+  
+ coron_china <- CDC %>% filter(Countries =="China")
+  ggplot(coron_country) +geom_col(aes(x=Reported,y=Deaths)) +
+    facet_wrap(~Year) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_continuous() + labs(title=" Deaths: Just China")
+  
 coron_usa %>% ggplot() +   geom_col(aes(x=Reported,y=Deaths)) +
           facet_wrap(~Year) +
-          labs(title="US Deaths by Month as of Mar. 17,2020",x="Date Reported")
+          labs(title="US Deaths by Month as of Mar. 18,2020",x="Date Reported")
+
+
 
 ```
+## Death Rate as a Percentage.
 
-
+```{R}
+death_percent <- CDC %>% group_by(Countries) %>% summarise(
+                                TCases = sum(Cases),
+                                TDeaths = sum(Deaths),
+                                PDeaths =TDeaths/TCases *100,
+                                ) %>% filter(TCases >200)
+death_percent$PDeaths <- round(death_percent$PDeaths,digits = 1)
+                        
+```
+```{r}
+death_percent %>% ggplot() + geom_col(aes(x=PDeaths,y=Countries)) +
+  labs(title="Death Rate Percentage by Country",subtitle="With 200  or more reported cases",x="Death Rate Percentage")
+```
 
