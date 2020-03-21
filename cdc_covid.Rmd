@@ -1,7 +1,7 @@
 ---
-title: "CDC Corona Virus as of Mar. 17.2020"
+title: "CDC Corona Virus as of Mar. 20.2020"
 author: "David J Jackson"
-date: "3/17/2020"
+date: "3/19/2020"
 output: html_document
 ---
 
@@ -13,15 +13,25 @@ library(pracma)
 library(plotly)
 library(scales)
 library(prophet)
+library(readxl)
+library(httr)
+```
+```{r}
+#these libraries are necessary
+#create the URL where the dataset is stored with automatic updates every day
+
+url <- paste("https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-",format(Sys.time(), "%Y-%m-%d"), ".xlsx", sep = "")
+
+#download the dataset from the website to a local temporary file
+GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
+#read the Dataset sheet into “R”
+CDC <- read_excel(tf)
 ```
 
 
 
 ```{r,echo=FALSE}
-rm(list=ls())
-# CDC <- read_csv("../db/COVID-2019.CSV")
-CDC <- readxl::read_xlsx("../db/COVID-2020-03-19.xlsx")
-# CDC <- readxl::read_xls("../db/COVID-2020-03-19.xlsx")
+
 CDC$DateRep <- lubridate::ymd(CDC$DateRep)
 # CDC$DateRep <- as.Date(CDC$DateRep)
 CDC$DCount <- ifelse(CDC$Deaths ==0,"NO","YES")
@@ -68,7 +78,7 @@ coron_usa <- CDC %>% filter(GeoId =="US")
 ggplot(coron_usa) +geom_col(aes(x=Reported,y=Cases)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
     scale_y_continuous() + facet_wrap(~Year) +
-  labs(title="US Reported Cases by Month as of Mar. 18, 2020",x="Date Reported")
+  labs(title="US Reported Cases by Month as of Mar. 20, 2020",x="Date Reported")
 ```
 
 ### Reported Deaths by Date
@@ -95,7 +105,7 @@ coron_country <- CDC %>% filter(Countries !="China")
   
 coron_usa %>% ggplot() +   geom_col(aes(x=Reported,y=Deaths)) +
           facet_wrap(~Year) +
-          labs(title="US Deaths by Month as of Mar. 18,2020",x="Date Reported")
+          labs(title="US Deaths by Month as of Mar. 20,2020",x="Date Reported")
 
 
 
@@ -117,7 +127,7 @@ death_percent$PDeaths <- round(death_percent$PDeaths,digits = 2)
 death_percent %>%
   mutate(Countries = fct_reorder(Countries, PDeaths)) %>%
   ggplot() + geom_col(aes(x=PDeaths,y=Countries)) +
-  labs(title="Death Rate Percentage by Country",subtitle="With 200  or more reported cases",x="Death Rate Percentage")
+  labs(title="Death Rate Percentage by Country(AS OF Mar. 20,2020",subtitle="With 200  or more reported cases",x="Death Rate Percentage")
 ```
 ```{r,echo=FALSE}
 # death_percent %>% datatable()
@@ -138,7 +148,7 @@ death_1000$PDeaths <- round(death_1000$PDeaths,digits = 1)
 death_1000 %>%
   mutate(Countries = fct_reorder(Countries, TCases)) %>%
   ggplot() + geom_col(aes(x=TCases,y=Countries)) +
-  labs(title="Total Reported Case by Country",subtitle="With 1000  or more reported cases",x="Number of Cases")
+  labs(title="Total Reported Case by Country as of Mar. 20 ,2020",subtitle="With 1000  or more reported cases",x="Number of Cases")
 ```
 
 ##  Cases by Country as Ratio of the Whole World
@@ -159,7 +169,7 @@ daily_cases_combined_usa <- daily_cases_combined %>% filter(Countries=="USA")
 USA_cases <- daily_cases_combined_usa 
 ggplot(USA_cases) + geom_line(aes(x=Reported,y=Per_Case)) +
   scale_y_continuous(labels=scales::percent) +
-  labs(title="USA Reported Case as a Ratio of Total World")
+  labs(title="USA Reported Case as a Ratio of Total World, As of Mar. 20,2020")
 ```
 
 ## Deaths by Country as a Ratio of the Whole World
@@ -186,6 +196,13 @@ USA_deaths <- daily_deaths_combined_usa
 
 ggplot(USA_deaths) + geom_line(aes(x=Reported,y=PercentDeaths)) +
   scale_y_continuous(labels=scales::percent) +
-  labs(title="USA Reported Deaths as a Ratio of Total World")
+  labs(title="USA Reported Deaths as a Ratio of Total World as of Mar. 20, 2020")
 ```
+```{r}
+CDC$X <- ifelse(CDC$Cases==0,0,1)
+CDC %>% ggplot() +geom_point(aes(x=Cases,y=Deaths)) +
+        geom_smooth(aes(x=Cases,y=Deaths),method=glm)
+  
+```
+
 
