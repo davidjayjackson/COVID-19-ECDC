@@ -1,0 +1,83 @@
+---
+title: 'US vs World: China/Hunan Virus 2019'
+author: "David J Jackson"
+date: "3/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(DT)
+library(pracma)
+library(plotly)
+library(scales)
+library(prophet)
+library(readxl)
+library(httr)
+library(lubridate)
+```
+```{r, echo=FALSE}
+rm(list=ls())
+#these libraries are necessary
+#create the URL where the dataset is stored with automatic updates every day
+
+url <- paste("https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-",format(Sys.time(), "%Y-%m-%d"), ".xlsx", sep = "")
+
+#download the dataset from the website to a local temporary file
+GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
+#read the Dataset sheet into “R”
+CDC <- read_excel(tf)
+```
+```{r,echo=FALSE}
+CDC$DateRep <- lubridate::ymd(CDC$DateRep)
+# CDC$DateRep <- as.Date(CDC$DateRep)
+CDC$DCount <- ifelse(CDC$Deaths ==0,"NO","YES")
+colnames(CDC) <- c("Reported","Day","Month","Year","Cases","Deaths","Countries","GeoId","DCount")
+CDC$Countries <-ifelse(CDC$Countries=="United_States_of_America","USA",CDC$Countries)
+CDC$Countries <-ifelse(CDC$Countries=="Cases_on_an_international_conveyance_Japan","Japan",CDC$Countries)
+```
+```{r,echo=FALSE}
+# Calculate Weekly Summary Cases and Deaths(World)
+# World
+CDC_weekly <- CDC %>% group_by(Weekly =floor_date( Reported,"week")) %>% summarise(
+                                                        tc = sum(Cases),
+                                                        td = sum(Deaths),                                                                 perdeaths = td/tc,
+                                                        Count = n())
+# By Country
+Countries_weekly <- CDC %>% group_by(Countries,Weekly =floor_date( Reported,"week")) %>% summarise(
+                                                        tc = sum(Cases),
+                                                        td = sum(Deaths),                                                                 perdeaths = td/tc,
+                                                        Count = n())
+
+# USA Only
+US_weekly <- Countries_weekly %>% filter(Countries == "USA" )
+
+```
+
+### The World: Summary by Week for Cases,Deaths and Percent of Deaths
+
+```{r, echo=FALSE}
+CDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>% 
+        layout(title="The World: Total Cases By Week")
+
+
+CDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
+        layout(title="The World: Total Deaths By Week")
+
+CDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
+        layout(title="The World: Percent of Cases Ending in Death by Week") 
+      
+```
+
+### US Summary by Week of Cases,Deaths and Percent of Deaths
+
+```{r,echo=FALSE}
+
+US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>% 
+        layout(title="USA: Total Cases By Week")
+US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
+        layout(title="USA: Total Deaths By Week")
+US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
+        layout(title="USA Percent of Cases Ending in Death by Week")
+```
