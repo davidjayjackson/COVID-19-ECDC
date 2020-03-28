@@ -30,17 +30,21 @@ url <- paste("https://www.ECDC.europa.eu/sites/default/files/documents/COVID-19-
 GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
 #read the Dataset sheet into “R”
 ECDC <- read_excel(tf)
-```
-```{r,echo=FALSE}
-library(RSQLite)
-
+colnames(ECDC) <- c("Reported","Day","Month","Year","Cases","Deaths","Countries","GeoId","CountryCode","Population")
 ```
 
+#### Data Date Range
+```{r}
+min(ECDC$Reported)
+max(ECDC$Reported)
+```
 ```{r,echo=FALSE}
-ECDC$DateRep <- lubridate::ymd(ECDC$DateRep)
+ECDC$DateRep <- lubridate::ymd(ECDC$Reported)
+```
+```{r}
+
 # ECDC$DateRep <- as.Date(ECDC$DateRep)
 # ECDC$DCount <- ifelse(ECDC$Deaths ==0,"NO","YES")
-colnames(ECDC) <- c("Reported","Day","Month","Year","Cases","Deaths","Countries","GeoId","CountryCode","Population")
 ECDC$Countries <-ifelse(ECDC$Countries=="United_States_of_America","USA",ECDC$Countries)
 ECDC$Countries <-ifelse(ECDC$Countries=="Cases_on_an_international_conveyance_Japan","Japan",ECDC$Countries)
 ```
@@ -66,7 +70,7 @@ ECDC_weekly <- ECDC %>% group_by(Weekly =floor_date( Reported,"week")) %>% summa
                                                         Count = n())
 ```
 
-```{r}
+```{r, echo=FALSE}
 # By Country
 # Weekly
 Countries_yearly <- ECDC %>% group_by(Countries,Yearly =floor_date( Reported,"year")) %>% summarise(
@@ -129,20 +133,8 @@ plot_ly() %>% add_lines(data=US_weekly,x=~Weekly,y=~perdeaths,name="USA") %>%
         add_lines(data=ECDC_weekly,x=~Weekly,y=~perdeaths,name="World") %>%
         layout(title="USA/World Percent of Cases Ending in Death by Week")
 ```
+
 ### The World minus US: Summary by Week of Cases,Deaths, and Percent of Deaths
-
-```{r, echo=FALSE}
-ECDC_minus_us  %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>% 
-        layout(title="The World:(minus US) Total Cases By Week")
-
-
-ECDC_minus_us  %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
-        layout(title="The World(minus US): Total Deaths By Week")
-
-ECDC_minus_us  %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
-        layout(title="The World(minus US): Percent of Cases Ending in Death by Week")
-```
-
 
 ```{r, echo=FALSE}
 
@@ -150,13 +142,25 @@ ECDC$Reported <- as.character(ECDC$Reported)
 db <- dbConnect(SQLite(), dbname="../db/CORVID.sqlite3")
 dbListTables(db)
 ```
-```{r}
+```{r,echo=FALSE}
 dbWriteTable(db, "ECDC", ECDC,overwrite=TRUE)
 ```
-```{r}
+```{r, echo=FALSE}
 GEOID <- ECDC %>% group_by(Countries,CountryCode,Population) %>% 
         summarise(Count=n())
 dbWriteTable(db, "GEOID", GEOID,overwrite=TRUE)
 dbListTables(db)
 dbDisconnect(db)
 ```
+```{r}
+df <-ECDC %>% group_by(Reported) %>% summarise(
+                                          TotalCases=sum(Cases),
+                                         TotalDeaths = sum(Deaths),
+                                         DeathRate = TotalDeaths/TotalCases)
+df %>% plot_ly() %>% add_bars(x=~Reported,y=~TotalCases) %>% layout(title="Total Confrimed Cases by Day")
+
+df %>% plot_ly() %>% add_bars(x=~Reported,y=~TotalDeaths) %>% layout(title="Total Confrimed Deaths by Day")
+
+df %>% plot_ly() %>% add_bars(x=~Reported,y=~DeathRate) %>% layout(title="Total Confrimed Deaths by Day")
+```
+
