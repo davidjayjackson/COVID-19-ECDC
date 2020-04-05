@@ -41,3 +41,28 @@ USA_weekly %>% ggplot() + geom_line(aes(x=Weekly,y=tc)) +
 USA_weekly  %>% ggplot() + geom_line(aes(x=Weekly,y=td)) +
   labs(title="USA Weekly Deaths Totals")
 ```
+```{r}
+PAK <- ECDC %>% filter(Code=="PAK")
+```
+```{r}
+PAK %>% ggplot() + geom_line(aes(x=Date,y=Cases)) +
+  labs(title="PAK Daily Case Totals")
+```
+```{r}
+PAK %>% ggplot() + geom_line(aes(x=Date,y=Deaths)) +
+  labs(title="PAK Daily Deaths Totals")
+```
+```{r}
+PAK_weekly <- PAK %>% group_by(Weekly =floor_date( Date,"week")) %>% 
+  summarise(
+             tc = sum(Cases),
+             td = sum(Deaths),                                                                    perdeaths = td/tc, Count = n())
+```
+```{r}
+PAK_weekly %>% ggplot() + geom_line(aes(x=Weekly,y=tc)) +
+  labs(title="PAK Weekly Case Totals")
+```
+```{r}
+PAK_weekly  %>% ggplot() + geom_line(aes(x=Weekly,y=td)) +
+  labs(title="PAK Weekly Deaths Totals")
+```
