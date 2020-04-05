@@ -7,10 +7,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=9, fig.height=6)
 library(tidyverse)
 library(forecast)
 library(data.table)
 library(lubridate)
+
+
 theme_set(theme_linedraw())
 ```
 ```{r,echo=FALSE}
@@ -18,52 +21,74 @@ ECDC <- readxl::read_xlsx("./ECDC-COVID-19.xlsx") %>%
   select(dateRep,cases,deaths,countriesAndTerritories,countryterritoryCode)
 colnames(ECDC) <- c("Date","Cases","Deaths","Countries","Code")
 ECDC$Date <- as.Date(ECDC$Date)
-USA <- ECDC %>% filter(Code=="USA")
+USA <- ECDC %>% filter(Code=="USA" & Date >="2020-03-01")
+USA_date <- ECDC %>% filter(Code=="USA" & Date >=Sys.Date() -30)
 ```
-```{r}
-USA %>% ggplot() + geom_col(aes(x=Date,y=Cases,fill=Date)) +
-  labs(title="USA Daily Case Totals")
+
+### USA Total Cases and Deaths by Day and Week
+```{r,echo=FALSE}
+USA_date %>% ggplot() + geom_col(aes(x=factor(Date),y=Cases,fill=Date)) +
+  labs(title="USA Daily Case Totals (Previous 30 Days)") +
+  theme(axis.text.x=element_text(angle =90))
 ```
-```{r}
-USA %>% ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Date)) +
-  labs(title="USA Daily Deaths Totals")
+```{r,echo=FALSE}
+USA_date %>% ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Date)) +
+  labs(title="USA Daily Deaths Totals (Previous 30 Day)") +
+  theme(axis.text.x = element_text(angle = 90))
+
 ```
-```{r}
+```{r,echo=FALSE}
 USA_weekly <- USA %>% group_by(Weekly =floor_date( Date,"week")) %>% 
   summarise(
              tc = sum(Cases),
              td = sum(Deaths),                                                                    perdeaths = td/tc, Count = n())
 ```
-```{r}
-USA_weekly %>% ggplot() + geom_col(aes(x=Weekly,y=tc,fill=Weekly)) +
-  labs(title="USA Weekly Case Totals")
+```{r,echo=FALSE}
+USA_weekly %>% ggplot() + geom_col(aes(x=factor(Weekly),y=tc,fill=Weekly)) +
+  labs(title="USA Weekly Case Totals") +
+  theme(axis.text.x = element_text(angle = 90))
+
 ```
-```{r}
-USA_weekly  %>% ggplot() + geom_col(aes(x=Weekly,y=td,fill=Weekly)) +
-  labs(title="USA Weekly Deaths Totals")
+```{r,echo=FALSE}
+USA_weekly  %>% ggplot() + geom_col(aes(x=factor(Weekly),y=td,fill=Weekly)) +
+  labs(title="USA Weekly Deaths Totals") +
+  theme(axis.text.x = element_text(angle = 90))
+
 ```
-```{r}
+
+### Pakistan Total Cases and Deaths by Day and Week
+
+```{r,echo=FALSE}
 PAK <- ECDC %>% filter(Code=="PAK")
+PAK30 <- ECDC %>% filter(Code=="PAK" & Date >=Sys.Date() -30)
 ```
-```{r}
-PAK %>% ggplot() + geom_col(aes(x=Date,y=Cases,cill=Date)) +
-  labs(title="PAK Daily Case Totals")
+```{r,echo=FALSE}
+PAK30 %>% ggplot() + geom_col(aes(x=Date,y=Cases,cill=Date)) +
+  labs(title="Pakistan Daily Case Totals",subtitle="(Previous 30 Days)") +
+  theme(axis.text.x = element_text(angle = 90))
+
 ```
-```{r}
-PAK %>% ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Date)) +
-  labs(title="PAK Daily Deaths Totals")
+```{r,echo=FALSE}
+PAK30 %>% ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Date)) +
+  labs(title="Pakistan Daily Deaths Totals",subtitle="(Previous 30 Days)") +
+  theme(axis.text.x = element_text(angle = 90))
+
 ```
-```{r}
+```{r,echo=FALSE}
 PAK_weekly <- PAK %>% group_by(Weekly =floor_date( Date,"week")) %>% 
   summarise(
              tc = sum(Cases),
              td = sum(Deaths),                                                                    perdeaths = td/tc, Count = n())
 ```
-```{r}
-PAK_weekly %>% ggplot() + geom_col(aes(x=Weekly,y=tc,fill=Weekly)) +
-  labs(title="PAK Weekly Case Totals")
+```{r,echo=FALSE}
+PAK_weekly %>% ggplot() + geom_col(aes(x=factor(Weekly),y=tc,fill=Weekly)) +
+  labs(title="Pakistan Weekly Case Totals") +
+  theme(axis.text.x = element_text(angle = 90))
+
 ```
-```{r}
-PAK_weekly  %>% ggplot() + geom_col(aes(x=Weekly,y=td,fil=Weekly)) +
-  labs(title="PAK Weekly Deaths Totals")
+```{r,echo=FALSE}
+PAK_weekly  %>% ggplot() + geom_col(aes(x=factor(Weekly),y=td,fil=Weekly)) +
+  labs(title="Pakistan Weekly Deaths Totals") +
+  theme(axis.text.x = element_text(angle = 90))
+
 ```
