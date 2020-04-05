@@ -11,8 +11,9 @@ library(tidyverse)
 library(forecast)
 library(data.table)
 library(lubridate)
+theme_set(theme_linedraw())
 ```
-```{r}
+```{r,echo=FALSE}
 ECDC <- readxl::read_xlsx("./ECDC-COVID-19.xlsx") %>% 
   select(dateRep,cases,deaths,countriesAndTerritories,countryterritoryCode)
 colnames(ECDC) <- c("Date","Cases","Deaths","Countries","Code")
@@ -20,11 +21,11 @@ ECDC$Date <- as.Date(ECDC$Date)
 USA <- ECDC %>% filter(Code=="USA")
 ```
 ```{r}
-USA %>% ggplot() + geom_line(aes(x=Date,y=Cases)) +
+USA %>% ggplot() + geom_col(aes(x=Date,y=Cases,fill=Date)) +
   labs(title="USA Daily Case Totals")
 ```
 ```{r}
-USA %>% ggplot() + geom_line(aes(x=Date,y=Deaths)) +
+USA %>% ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Date)) +
   labs(title="USA Daily Deaths Totals")
 ```
 ```{r}
@@ -34,22 +35,22 @@ USA_weekly <- USA %>% group_by(Weekly =floor_date( Date,"week")) %>%
              td = sum(Deaths),                                                                    perdeaths = td/tc, Count = n())
 ```
 ```{r}
-USA_weekly %>% ggplot() + geom_line(aes(x=Weekly,y=tc)) +
+USA_weekly %>% ggplot() + geom_col(aes(x=Weekly,y=tc,fill=Weekly)) +
   labs(title="USA Weekly Case Totals")
 ```
 ```{r}
-USA_weekly  %>% ggplot() + geom_line(aes(x=Weekly,y=td)) +
+USA_weekly  %>% ggplot() + geom_col(aes(x=Weekly,y=td,fill=Weekly)) +
   labs(title="USA Weekly Deaths Totals")
 ```
 ```{r}
 PAK <- ECDC %>% filter(Code=="PAK")
 ```
 ```{r}
-PAK %>% ggplot() + geom_line(aes(x=Date,y=Cases)) +
+PAK %>% ggplot() + geom_col(aes(x=Date,y=Cases,cill=Date)) +
   labs(title="PAK Daily Case Totals")
 ```
 ```{r}
-PAK %>% ggplot() + geom_line(aes(x=Date,y=Deaths)) +
+PAK %>% ggplot() + geom_col(aes(x=Date,y=Deaths,fill=Date)) +
   labs(title="PAK Daily Deaths Totals")
 ```
 ```{r}
@@ -59,10 +60,10 @@ PAK_weekly <- PAK %>% group_by(Weekly =floor_date( Date,"week")) %>%
              td = sum(Deaths),                                                                    perdeaths = td/tc, Count = n())
 ```
 ```{r}
-PAK_weekly %>% ggplot() + geom_line(aes(x=Weekly,y=tc)) +
+PAK_weekly %>% ggplot() + geom_col(aes(x=Weekly,y=tc,fill=Weekly)) +
   labs(title="PAK Weekly Case Totals")
 ```
 ```{r}
-PAK_weekly  %>% ggplot() + geom_line(aes(x=Weekly,y=td)) +
+PAK_weekly  %>% ggplot() + geom_col(aes(x=Weekly,y=td,fil=Weekly)) +
   labs(title="PAK Weekly Deaths Totals")
 ```
