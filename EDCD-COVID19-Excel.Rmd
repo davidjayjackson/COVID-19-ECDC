@@ -1,0 +1,43 @@
+---
+title: "ECDC COVID-19 Excel Spreadsheet"
+author: "David J Jackson"
+date: "4/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(forecast)
+library(data.table)
+library(lubridate)
+```
+```{r}
+ECDC <- readxl::read_xlsx("./ECDC-COVID-19.xlsx") %>% 
+  select(dateRep,cases,deaths,countriesAndTerritories,countryterritoryCode)
+colnames(ECDC) <- c("Date","Cases","Deaths","Countries","Code")
+ECDC$Date <- as.Date(ECDC$Date)
+USA <- ECDC %>% filter(Code=="USA")
+```
+```{r}
+USA %>% ggplot() + geom_line(aes(x=Date,y=Cases)) +
+  labs(title="USA Daily Case Totals")
+```
+```{r}
+USA %>% ggplot() + geom_line(aes(x=Date,y=Deaths)) +
+  labs(title="USA Daily Deaths Totals")
+```
+```{r}
+USA_weekly <- USA %>% group_by(Weekly =floor_date( Date,"week")) %>% 
+  summarise(
+             tc = sum(Cases),
+             td = sum(Deaths),                                                                    perdeaths = td/tc, Count = n())
+```
+```{r}
+USA_weekly %>% ggplot() + geom_line(aes(x=Weekly,y=tc)) +
+  labs(title="USA Weekly Case Totals")
+```
+```{r}
+USA_weekly  %>% ggplot() + geom_line(aes(x=Weekly,y=td)) +
+  labs(title="USA Weekly Deaths Totals")
+```
