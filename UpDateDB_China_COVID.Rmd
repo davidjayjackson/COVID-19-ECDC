@@ -1,7 +1,7 @@
 ---
 title: 'US vs World: China/Hunan Virus 2019'
 author: "David J Jackson"
-date: "3/23/2020"
+date: "Apr. 17, 2020 01:35PM EDT"
 output: html_document
 ---
 
@@ -16,7 +16,6 @@ library(prophet)
 library(readxl)
 library(httr)
 library(lubridate)
-library(coronavirus)
 library(RSQLite)
 ```
 ```{r, echo=FALSE}
@@ -39,7 +38,7 @@ min(ECDC$Reported)
 max(ECDC$Reported)
 ```
 ```{r,echo=FALSE}
-ECDC$DateRep <- lubridate::ymd(ECDC$Reported)
+# ECDC$DateRep <- lubridate::ymd(ECDC$Reported)
 ```
 ```{r,echo=FALSE}
 
@@ -139,16 +138,15 @@ plot_ly() %>% add_lines(data=US_weekly,x=~Weekly,y=~perdeaths,name="USA") %>%
 ```{r, echo=FALSE}
 
 ECDC$Reported <- as.character(ECDC$Reported)
-db <- dbConnect(SQLite(), dbname="../db/CORVID.sqlite3")
-dbListTables(db)
+db <- dbConnect(SQLite(), dbname="../COVIDDB//CORVID.sqlite3")
 ```
 ```{r,echo=FALSE}
 dbWriteTable(db, "ECDC", ECDC,overwrite=TRUE)
 ```
 ```{r, echo=FALSE}
-GEOID <- ECDC %>% group_by(Countries,CountryCode,Population) %>% 
-        summarise(Count=n())
-dbWriteTable(db, "GEOID", GEOID,overwrite=TRUE)
+# GEOID <- ECDC %>% group_by(Countries,CountryCode,Population) %>% 
+#         summarise(Count=n())
+# dbWriteTable(db, "GEOID", GEOID,overwrite=TRUE)
 dbListTables(db)
 dbDisconnect(db)
 ```
