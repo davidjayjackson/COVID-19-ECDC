@@ -15,13 +15,15 @@ library(lubridate)
 library(RSQLite)
 theme_set(theme_linedraw())
 ```
-```{r}
+```{r,echo=FALSE}
 rm(list=ls())
 db <- dbConnect(SQLite(), dbname="../db/CORVID.sqlite3")
 ECDC <- dbGetQuery(db,"select Reported,Cases,Deaths,Countries,
                  CountryCode  from ECDC")
 colnames(ECDC) <- c("Date","Cases","Deaths","Countries","Code" )
 ECDC$Date <- as.Date(ECDC$Date)
+
+
 
 ```
 ```{r,echo=FALSE}
@@ -30,6 +32,7 @@ USA_date <- ECDC %>% filter(Code=="USA" & Date >=Sys.Date() -30)
 ```
 
 ### USA Total Cases and Deaths by Day and Week
+
 ```{r,echo=FALSE}
 USA_date %>% ggplot() + geom_col(aes(x=factor(Date),y=Cases)) +
   labs(title="USA Daily Case Totals (Previous 30 Days)") +

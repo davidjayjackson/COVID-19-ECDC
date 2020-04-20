@@ -1,7 +1,7 @@
 ---
 title: 'US vs World: China/Hunan Virus 2019'
 author: "David J Jackson"
-date: "Apr. 17, 2020 01:35PM EDT"
+date: "Apr. 20, 2020 1:20 PM/EDT"
 output: html_document
 ---
 
@@ -28,35 +28,30 @@ url <- paste("https://www.ECDC.europa.eu/sites/default/files/documents/COVID-19-
 #download the dataset from the website to a local temporary file
 GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
 #read the Dataset sheet into “R”
-ECDC <- read_excel(tf)
-colnames(ECDC) <- c("Reported","Day","Month","Year","Cases","Deaths","Countries","GeoId","CountryCode","Population")
+ECDC <- read_excel(tf) %>% select(countriesAndTerritories,dateRep,year,month,cases,deaths)
+colnames(ECDC) <- c("Countries","Reported","Year","Month","Cases","Deaths")  
 ```
 
-#### Data Date Range
-```{r,echo=FALSE}
-min(ECDC$Reported)
-max(ECDC$Reported)
-```
-```{r,echo=FALSE}
-# ECDC$DateRep <- lubridate::ymd(ECDC$Reported)
-```
-```{r,echo=FALSE}
 
-# ECDC$DateRep <- as.Date(ECDC$DateRep)
-# ECDC$DCount <- ifelse(ECDC$Deaths ==0,"NO","YES")
+```{r}
+ECDC$Reported <- as.Date(ECDC$Reported)
 ECDC$Countries <-ifelse(ECDC$Countries=="United_States_of_America","USA",ECDC$Countries)
 ECDC$Countries <-ifelse(ECDC$Countries=="Cases_on_an_international_conveyance_Japan","Japan",ECDC$Countries)
 ```
+
 ```{r,echo=FALSE}
 # Calculate Summary Cases and Deaths(World)
 # World
 # ECDC Summary by Year
 ECDC_Year <- ECDC %>% group_by(Yearly =floor_date( Reported,"year")) %>% summarise(
-                                                        tc = sum(Cases),
-                                                        td = sum(Deaths),                                                                perdeaths = td/tc,
+                                                       # tc = sum(Cases),
+                                                       # td = sum(Deaths),                                                                                   #  perdeaths = td/tc,
                                                         Count = n())
+```
 
 # Summary by Month
+
+```{r}
 ECDC_monthly <- ECDC %>% group_by(Monthly =floor_date( Reported,"month")) %>%                                                              summarise(
                                                         tc = sum(Cases),
                                                         td = sum(Deaths),                                                                perdeaths = td/tc,

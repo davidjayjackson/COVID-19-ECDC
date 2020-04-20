@@ -1,7 +1,7 @@
 ---
-title: "CDC Corona Virus as of Mar. 20.2020"
+title: "CDC Corona Virus as of Mar. 30,2020"
 author: "David J Jackson"
-date: "3/19/2020"
+date: "3/22/2020"
 output: html_document
 ---
 
@@ -15,9 +15,11 @@ library(scales)
 library(prophet)
 library(readxl)
 library(httr)
+library(lubridate)
 ```
-```{r}
-#these libraries are necessary
+```{r, echo=FALSE}
+rm(list=ls())
+# these libraries are necessary
 #create the URL where the dataset is stored with automatic updates every day
 
 url <- paste("https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-",format(Sys.time(), "%Y-%m-%d"), ".xlsx", sep = "")
@@ -38,6 +40,50 @@ CDC$DCount <- ifelse(CDC$Deaths ==0,"NO","YES")
 colnames(CDC) <- c("Reported","Day","Month","Year","Cases","Deaths","Countries","GeoId","DCount")
 CDC$Countries <-ifelse(CDC$Countries=="United_States_of_America","USA",CDC$Countries)
 CDC$Countries <-ifelse(CDC$Countries=="Cases_on_an_international_conveyance_Japan","Japan",CDC$Countries)
+```
+```{r}
+# Calculate Weekly Summary Cases and Deaths(World)
+# World
+CDC_weekly <- CDC %>% group_by(Weekly =floor_date( Reported,"week")) %>% summarise(
+                                                        tc = sum(Cases),
+                                                        td = sum(Deaths),                                                                 perdeaths = td/tc,
+                                                        Count = n())
+# By Country
+Countries_weekly <- CDC %>% group_by(Countries,Weekly =floor_date( Reported,"week")) %>% summarise(
+                                                        tc = sum(Cases),
+                                                        td = sum(Deaths),                                                                 perdeaths = td/tc,
+                                                        Count = n())
+
+# USA Only
+US_weekly <- Countries_weekly %>% filter(Countries == "USA" )
+
+```
+
+### The World: Summary by Week for Cases,Deaths and Percent of Deaths
+
+```{r, echo=FALSE}
+CDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>% 
+        layout(title="The World: Total Cases By Week")
+
+
+CDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
+        layout(title="The World: Total Deaths By Week")
+
+CDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
+        layout(title="The World: Percent of Cases Ending in Death by Week") 
+      
+```
+
+### US Summary by Week of Cases,Deaths and Percent of Deaths
+
+```{r}
+
+US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>% 
+        layout(title="USA: Total Cases By Week")
+US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
+        layout(title="USA: Total Deaths By Week")
+US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
+        layout(title="USA Percent of Cases Ending in Death by Week")
 ```
 
 
@@ -167,9 +213,10 @@ daily_cases_combined$Per_Case <- daily_cases_combined$Country_cases/daily_cases_
 daily_cases_combined_usa <- daily_cases_combined %>% filter(Countries=="USA")
 
 USA_cases <- daily_cases_combined_usa 
-ggplot(USA_cases) + geom_line(aes(x=Reported,y=Per_Case)) +
+gg1 <- ggplot(USA_cases) + geom_line(aes(x=Reported,y=Per_Case)) +
   scale_y_continuous(labels=scales::percent) +
   labs(title="USA Reported Case as a Ratio of Total World, As of Mar. 20,2020")
+ggplotly(gg1)
 ```
 
 ## Deaths by Country as a Ratio of the Whole World
@@ -194,9 +241,10 @@ daily_deaths_combined_usa <- daily_deaths_combined %>% filter(Countries=="USA")
 
 USA_deaths <- daily_deaths_combined_usa 
 
-ggplot(USA_deaths) + geom_line(aes(x=Reported,y=PercentDeaths)) +
+gg <- ggplot(USA_deaths) + geom_line(aes(x=Reported,y=PercentDeaths)) +
   scale_y_continuous(labels=scales::percent) +
   labs(title="USA Reported Deaths as a Ratio of Total World as of Mar. 20, 2020")
+ggplotly(gg)
 ```
 ```{r}
 CDC$X <- ifelse(CDC$Cases==0,0,1)
@@ -204,5 +252,3 @@ CDC %>% ggplot() +geom_point(aes(x=Cases,y=Deaths)) +
         geom_smooth(aes(x=Cases,y=Deaths),method=glm)
   
 ```
-
-
