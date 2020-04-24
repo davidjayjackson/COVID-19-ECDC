@@ -1,7 +1,7 @@
 ---
 title: 'US vs World: China/Hunan Virus 2019'
 author: "David J Jackson"
-date: "Apr. 22, 2020 11:55 AM/EDT"
+date: "Apr. 24, 2020 12:30 PM/EDT"
 output: html_document
 ---
 
@@ -28,13 +28,16 @@ url <- paste("https://www.ECDC.europa.eu/sites/default/files/documents/COVID-19-
 #download the dataset from the website to a local temporary file
 GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
 #read the Dataset sheet into “R”
-ECDC <- read_excel(tf) %>% select(countriesAndTerritories,dateRep,year,month,cases,deaths)
+ECDC <- read_excel(tf)
+ECDC$dateRep <- as.Date(ECDC$dateRep)
+
+ECDC <- ECDC %>% select(countriesAndTerritories,dateRep,year,month,cases,deaths)
+
 colnames(ECDC) <- c("Countries","Reported","Year","Month","Cases","Deaths")  
 ```
 
 
 ```{r}
-ECDC$Reported <- as.Date(ECDC$Reported)
 ECDC$Countries <-ifelse(ECDC$Countries=="United_States_of_America","USA",ECDC$Countries)
 ECDC$Countries <-ifelse(ECDC$Countries=="Cases_on_an_international_conveyance_Japan","Japan",ECDC$Countries)
 ```
