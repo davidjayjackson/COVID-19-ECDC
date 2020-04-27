@@ -1,7 +1,7 @@
 ---
 title: 'US vs World: China/Hunan Virus 2019'
 author: "David J Jackson"
-date: "Apr. 25, 2020 12:00 PM/EDT"
+date: "Apr. 27, 2020 12:35 PM/EDT"
 output: html_document
 ---
 
