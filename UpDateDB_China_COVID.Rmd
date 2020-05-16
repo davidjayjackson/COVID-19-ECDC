@@ -1,7 +1,7 @@
 ---
 title: 'US vs World: China/Hunan Virus 2019'
 author: "David J Jackson"
-date: "May  15, 2020 11:55 AM/EDT"
+date: "May  16, 20203:15 AM/EDT"
 output: html_document
 ---
 
@@ -29,6 +29,7 @@ url <- paste("https://www.ECDC.europa.eu/sites/default/files/documents/COVID-19-
 GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
 #read the Dataset sheet into “R”
 ECDC <- read_excel(tf)
+ECDC$dateRep <- dmy(ECDC$dateRep)
 ECDC$dateRep <- as.Date(ECDC$dateRep)
 
 ECDC <- ECDC %>% select(countriesAndTerritories,dateRep,year,month,cases,deaths)
@@ -47,8 +48,8 @@ ECDC$Countries <-ifelse(ECDC$Countries=="Cases_on_an_international_conveyance_Ja
 # World
 # ECDC Summary by Year
 ECDC_Year <- ECDC %>% group_by(Yearly =floor_date( Reported,"year")) %>% summarise(
-                                                       # tc = sum(Cases),
-                                                       # td = sum(Deaths),                                                                                   #  perdeaths = td/tc,
+                                                       tc = sum(Cases),
+                                                       td = sum(Deaths),                                                                                   #  perdeaths = td/tc,
                                                         Count = n())
 ```
 
@@ -57,8 +58,7 @@ ECDC_Year <- ECDC %>% group_by(Yearly =floor_date( Reported,"year")) %>% summari
 ```{r}
 ECDC_monthly <- ECDC %>% group_by(Monthly =floor_date( Reported,"month")) %>%                                                              summarise(
                                                         tc = sum(Cases),
-                                                        td = sum(Deaths),                                                                perdeaths = td/tc,
-                                                        Count = n())
+                                                        td = sum(Deaths),                                                         Count = n())
 
 ## Weekly Summary
 ECDC_weekly <- ECDC %>% group_by(Weekly =floor_date( Reported,"week")) %>% summarise(
@@ -106,8 +106,8 @@ ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>%
 ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
         layout(title="The World: Total Deaths By Week")
 
-ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
-        layout(title="The World: Percent of Cases Ending in Death by Week") 
+# ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
+#         layout(title="The World: Percent of Cases Ending in Death by Week") 
       
 ```
 
