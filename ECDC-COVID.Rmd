@@ -1,7 +1,7 @@
 ---
-title: 'US vs World: China/Hunan Virus 2019'
+title: ' European CDC COVID-19 Report'
 author: "David J Jackson"
-date: "May  16, 20203:15 AM/EDT"
+date: "May  17, 2020 5:45 PM/EDT"
 output: html_document
 ---
 
@@ -29,8 +29,8 @@ url <- paste("https://www.ECDC.europa.eu/sites/default/files/documents/COVID-19-
 GET(url, authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".xlsx")))
 #read the Dataset sheet into “R”
 ECDC <- read_excel(tf)
-ECDC$dateRep <- dmy(ECDC$dateRep)
-ECDC$dateRep <- as.Date(ECDC$dateRep)
+ECDC$dateRep <- ymd(ECDC$dateRep)
+# ECDC$dateRep <- as.Date(ECDC$dateRep)
 
 ECDC <- ECDC %>% select(countriesAndTerritories,dateRep,year,month,cases,deaths)
 
