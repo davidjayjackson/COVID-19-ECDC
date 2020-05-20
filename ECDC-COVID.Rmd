@@ -1,7 +1,7 @@
 ---
 title: ' European CDC COVID-19 Report'
 author: "David J Jackson"
-date: "May  19, 2020 2:20 PM/EDT"
+date: "May  20, 2020 1:00 PM/EDT"
 output: html_document
 ---
 
@@ -99,11 +99,11 @@ US_weekly <- Countries_weekly %>% filter(Countries == "USA" )
 ### The World: Summary by Week for Cases,Deaths, and Percent of Deaths
 
 ```{r, echo=FALSE}
-ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>% 
+ECDC_weekly %>% plot_ly() %>% add_bars(x=~Weekly,y=~tc) %>% 
         layout(title="The World: Total Cases By Week")
 
 
-ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
+ECDC_weekly %>% plot_ly() %>% add_bars(x=~Weekly,y=~td) %>% 
         layout(title="The World: Total Deaths By Week")
 
 # ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
@@ -115,12 +115,12 @@ ECDC_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>%
 
 ```{r,echo=FALSE}
 
-US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~tc) %>% 
+US_weekly %>% plot_ly() %>% add_bars(x=~Weekly,y=~tc) %>% 
         layout(title="USA: Total Cases By Week")
-US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~td) %>% 
-        layout(title="USA: Total Deaths By Week")
+US_weekly %>% plot_ly() %>% add_bars(x=~Weekly,y=~td) %>% 
+        layout(title="USA: Total  By Webarsek")
 US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
-        layout(title="USA Percent of Cases Ending in Death by Week")
+        layout(title="USA Percent Cases Ending in Death by Week")
 ```
 
 ## US vs World: Percent of Death by Week
