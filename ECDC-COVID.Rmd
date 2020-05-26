@@ -1,7 +1,7 @@
 ---
 title: ' European CDC COVID-19 Report'
 author: "David J Jackson"
-date: "May  25, 2020 4:20 PM/EDT"
+date: "May  26, 2020 12:15 PM/EDT"
 output: html_document
 ---
 
