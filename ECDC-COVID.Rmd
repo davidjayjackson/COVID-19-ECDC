@@ -116,9 +116,15 @@ ECDC_weekly %>% plot_ly() %>% add_bars(x=~Weekly,y=~td) %>%
 ```{r,echo=FALSE}
 
 US_weekly %>% plot_ly() %>% add_bars(x=~Weekly,y=~tc) %>% 
-        layout(title="USA: Total Cases By Week")
+        layout(title="USA: Total Cases By Week",
+               yaxis = list(title ="Total Cases"))
+
+
 US_weekly %>% plot_ly() %>% add_bars(x=~Weekly,y=~td) %>% 
-        layout(title="USA: Total  By Webarsek")
+          layout(title="USA: Total Deaths By Week",
+                 yaxis = list(title = "Total Deaths"))
+
+
 US_weekly %>% plot_ly() %>% add_lines(x=~Weekly,y=~perdeaths) %>% 
         layout(title="USA Percent Cases Ending in Death by Week")
 ```
