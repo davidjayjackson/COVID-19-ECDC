@@ -1,7 +1,7 @@
 ---
 title: ' European CDC COVID-19 Report'
 author: "David J Jackson"
-date: "June  11  2020 17:00 UD/UT"
+date: "June  12  2020 16:06 UD/UT"
 output: html_document
 ---
 
@@ -178,9 +178,9 @@ df.us <-ECDC %>% filter(Countries =="USA") %>% group_by(Reported) %>% summarise(
                                          TotalDeaths = sum(Deaths),
                                          DeathRate = TotalDeaths/TotalCases)
 
-df.us %>% plot_ly() %>% add_bars(x=~Reported,y=~TotalCases) %>% layout(title="US Total Confrimed Cases by Day")
+df.us %>% plot_ly() %>% add_lines(x=~Reported,y=~TotalCases) %>% layout(title="US Total Confrimed Cases by Day")
 
-df.us %>% plot_ly() %>% add_bars(x=~Reported,y=~TotalDeaths) %>% layout(title="US Total Confrimed Deaths by Day")
+df.us %>% plot_ly() %>% add_lines(x=~Reported,y=~TotalDeaths) %>% layout(title="US Total Confrimed Deaths by Day")
 
 df.us %>% plot_ly() %>% add_bars(x=~Reported,y=~DeathRate) %>% layout(title="US Death Rate (as Percentage) by Day")
 ```
