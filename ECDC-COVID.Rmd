@@ -1,7 +1,7 @@
 ---
 title: ' European CDC COVID-19 Report'
 author: "David J Jackson"
-date: "June  30 2020"
+date: "July 1, 2020"
 output: html_document
 ---
 
@@ -32,9 +32,10 @@ ECDC <- read_excel(tf)
 ECDC$dateRep <- ymd(ECDC$dateRep)
 # ECDC$dateRep <- as.Date(ECDC$dateRep)
 
-ECDC <- ECDC %>% select(countriesAndTerritories,dateRep,year,month,cases,deaths)
+ECDC <- ECDC %>% select(countriesAndTerritories,dateRep,year,month,cases,deaths,popData2019
+)
 
-colnames(ECDC) <- c("Countries","Reported","Year","Month","Cases","Deaths")  
+colnames(ECDC) <- c("Countries","Reported","Year","Month","Cases","Deaths","Population")  
 ```
 
 
