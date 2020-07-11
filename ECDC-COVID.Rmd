@@ -1,7 +1,7 @@
 ---
 title: ' European CDC COVID-19 Report'
 author: "David J Jackson"
-date: "July 10, 2020"
+date: "July 11, 2020"
 output: html_document
 ---
 
@@ -143,7 +143,7 @@ plot_ly() %>% add_lines(data=US_weekly,x=~Weekly,y=~perdeaths,name="USA") %>%
 ```{r, echo=FALSE}
 
 ECDC$Reported <- as.character(ECDC$Reported)
-db <- dbConnect(SQLite(), dbname="../COVIDDB//CORVID.sqlite3")
+db <- dbConnect(SQLite(), dbname="../COVIDDB/COVID.sqlite3")
 ```
 ```{r,echo=FALSE}
 dbWriteTable(db, "ECDC", ECDC,overwrite=TRUE)
