@@ -1,15 +1,15 @@
 ---
 title: ' European CDC COVID-19 Report'
 author: "David J Jackson"
-date: "July 16, 2020"
+date: "July 20, 2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(DT)
-library(pracma)
+# library(DT)
+# library(pracma)
 library(plotly)
 library(scales)
 # library(prophet)
