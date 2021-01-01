@@ -1,0 +1,67 @@
+---
+title: "ECDPC Weekly Numbers"
+author: "David Jackson"
+date: "12/31/2020"
+output: 
+  html_document: 
+    fig_width: 9
+    fig_height: 7
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(scales)
+library(dplyr)
+```
+```{r}
+df <- read.csv("./data.csv")
+US <- subset(df,geoId=="US")
+str(US)
+```
+
+#### Weekly Casess and Deaths for USA
+
+```{r}
+US %>% ggplot() + geom_col(aes(x=year_week,y=Cases)) +
+  theme(axis.text.x=element_text(angle =- 45, vjust = 0.5)) +
+  labs(title="US Weekly Cases")
+
+US %>% ggplot() + geom_col(aes(x=year_week,y=Deaths)) +
+  theme(axis.text.x=element_text(angle =- 90, vjust = 0.5)) +
+  labs(title="US Weekly Deaths")
+  
+
+```
+
+## Weekly Cases and Deaths for Swedden
+
+
+```{r}
+Sweden <- subset(df,geoId =="SE")
+
+Sweden %>% ggplot() + geom_col(aes(x=year_week,y=Cases)) +
+  theme(axis.text.x=element_text(angle =- 45, vjust = 0.5)) +
+  labs(title="Sweden Weekly Cases") 
+  
+
+Sweden %>% ggplot() + geom_col(aes(x=year_week,y=Deaths)) +
+  theme(axis.text.x=element_text(angle =- 90, vjust = 0.5)) +
+  labs(title="Sweden Weekly Deaths")
+```
+
+### Weekly Cases and Deaths: UK
+
+
+```{r}
+UK <- subset(df,geoId =="UK")
+
+UK %>% ggplot() + geom_col(aes(x=year_week,y=Cases)) +
+  theme(axis.text.x=element_text(angle =- 45, vjust = 0.5)) +
+  labs(title="UK Weekly Cases") 
+  
+
+UK %>% ggplot() + geom_col(aes(x=year_week,y=Deaths)) +
+  theme(axis.text.x=element_text(angle =- 90, vjust = 0.5)) +
+  labs(title="UK Weekly Deaths")
+```
